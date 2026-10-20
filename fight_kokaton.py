@@ -179,6 +179,7 @@ def main():
     #     bombs.append(bomb)
     beam = None  # ゲーム初期化時にはビームは存在しない
     score = Score(screen) #追加機能1
+    beam_list = []
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -187,7 +188,8 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                beam = Beam(bird)
+                beam_list.append(beam)  # 追加機能2：リストに要素を追加する
         screen.blit(bg_img, [0, 0])
 
         for bomb in bombs:
@@ -202,19 +204,22 @@ def main():
                 return
 
         for i, bomb in enumerate(bombs):
-            if beam is not None:
-                if beam.rct.colliderect(bomb.rct):
-                    beam = None
-                    bombs[i] = None
-                    bird.change_img(6, screen)
-                    score.score += 1  #scoreに１をたす
-                    pg.display.update()
+            for j, beam in enumerate(beam_list):  #追加機能2：衝突した要素をNoneに変更する
+                if beam is not None:
+                    if beam.rct.colliderect(bomb.rct):
+                        beam_list[j] = None
+                        bombs[i] = None
+                        bird.change_img(6, screen)
+                        score.score += 1  #scoreに１をたす
+                        pg.display.update()
         bombs = [bomb for bomb in bombs if bomb is not None]  # 練習5
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        if beam is not None:
-            beam.update(screen)
+        for beam in beam_list:
+            if beam is not None:  # 追加機能2：Noneではないとき、レーザを生成する
+                beam.update(screen)
+        beam_list = [beam for beam in beam_list if beam is not None and check_bound(beam.rct) == (True, True)]  #追加機能2：Noneの削除と範囲外のレーザに対する処置
         for bomb in bombs:  
             bomb.update(screen)
         score.update()  # スコアを更新する

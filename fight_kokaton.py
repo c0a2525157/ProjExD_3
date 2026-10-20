@@ -141,6 +141,32 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Score:
+    """
+    スコアに関するクラス
+    """
+    def __init__(self, screen: pg.Surface):
+        """
+        文字列Surfaceの生成を行う
+        Scoreを画像Surfaceの左下に表示されるようにする
+        引数 screen：画面Surface
+        """
+        self.screen = screen  #画面Surfaceを生成する
+        self.fonto = pg.font.Font(None, 50)  #文字列サーフェイスを生成する
+        self.color = (0, 0, 255)
+        self.score = 0
+        self.center = [100, HEIGHT - 50]
+        self.img = self.fonto.render(f"Score: {self.score}", 0, self.color)
+
+    def update(self):
+        """
+        スコアの更新をする
+        引数：なし
+        """
+        self.txt = self.fonto.render(f"Score: {self.score}", 0, self.color)
+        self.screen.blit(self.txt, self.center)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -152,6 +178,7 @@ def main():
     #     bomb = Bomb((255, 0, 0), 10)
     #     bombs.append(bomb)
     beam = None  # ゲーム初期化時にはビームは存在しない
+    score = Score(screen) #追加機能1
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -180,6 +207,7 @@ def main():
                     beam = None
                     bombs[i] = None
                     bird.change_img(6, screen)
+                    score.score += 1  #scoreに１をたす
                     pg.display.update()
         bombs = [bomb for bomb in bombs if bomb is not None]  # 練習5
 
@@ -189,6 +217,7 @@ def main():
             beam.update(screen)
         for bomb in bombs:  
             bomb.update(screen)
+        score.update()  # スコアを更新する
         pg.display.update()
         tmr += 1
         clock.tick(50)

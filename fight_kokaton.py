@@ -174,6 +174,7 @@ class Explosion:
     def __init__(self, bomb: Bomb):
         """
         爆発時間と爆発場所の設定
+        引数：インスタンス
         """
         self.explo_img = pg.image.load("fig/explosion.gif")
         self.img_trance = pg.transform.flip(self.explo_img, True, True)

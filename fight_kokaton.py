@@ -167,6 +167,33 @@ class Score:
         self.screen.blit(self.txt, self.center)
 
 
+class Explosion:
+    """
+    爆発エフェクトに関するクラス
+    """
+    def __init__(self, bomb: Bomb):
+        """
+        爆発時間と爆発場所の設定
+        """
+        self.explo_img = pg.image.load("fig/explosion.gif")
+        self.img_trance = pg.transform.flip(self.explo_img, True, True)
+        self.images = [self.explo_img, self.img_trance]
+        self.image = self.images[0]
+        self.rct = self.image.get_rect()
+        self.rct.center = bomb.rct.center
+        self.life = 50
+
+    def update(self, screen):
+        """
+        時間lifeから１を引き、lifeが正の間爆発を演出する
+        引数：画面サーフェイス
+        """
+        self.life -= 1
+        if(self.life > 0):
+            self.image = self.images[self.life // 5 % 2]
+            screen.blit(self.image, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -180,6 +207,7 @@ def main():
     beam = None  # ゲーム初期化時にはビームは存在しない
     score = Score(screen) #追加機能1
     beam_list = []
+    explo_list = []  # 追加機能3
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -209,9 +237,13 @@ def main():
                     if beam.rct.colliderect(bomb.rct):
                         beam_list[j] = None
                         bombs[i] = None
+                        explo_list.append(Explosion(bomb))
                         bird.change_img(6, screen)
                         score.score += 1  #scoreに１をたす
                         pg.display.update()
+            for explo in explo_list:  # 追加機能３：リストに追加
+                explo.update(screen)
+        explo_list = [explo for explo in explo_list if explo.life > 0]  # 爆発時間が0より多いものをリストに格納する
         bombs = [bomb for bomb in bombs if bomb is not None]  # 練習5
 
         key_lst = pg.key.get_pressed()
